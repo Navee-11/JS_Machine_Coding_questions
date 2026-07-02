@@ -1,0 +1,190 @@
+There are several DOM methods that accept CSS selectors, and they're very useful because you can use the same selector syntax you use in CSS.
+1. querySelector()
+Returns the first element that matches the selector.
+const btn = document.querySelector(".tabLinks");
+const title = document.querySelector("#title");
+const input = document.querySelector("input[type='text']");
+________________________________________
+2. querySelectorAll()
+Returns all matching elements as a NodeList.
+const tabs = document.querySelectorAll(".tabLinks");
+
+tabs.forEach(tab => {
+    console.log(tab.textContent);
+});
+________________________________________
+3. matches()
+Checks whether an element matches a selector.
+if (element.matches(".active")) {
+    console.log("Active");
+}
+Your example:
+if (e.target.matches(".tabLinks")) {
+    // clicked a tab
+}
+________________________________________
+4. closest()
+Finds the nearest ancestor (or the element itself) that matches a selector.
+HTML:
+<div class="card">
+    <button>Delete</button>
+</div>
+JavaScript:
+document.addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    console.log(card);
+});
+If you click the button, closest(".card") returns the surrounding <div class="card">.
+This is very common in event delegation.
+________________________________________
+5. Element.querySelector()
+You can search inside a specific element.
+const card = document.querySelector(".card");
+
+const button = card.querySelector("button");
+Only searches inside .card.
+________________________________________
+6. Element.querySelectorAll()
+Searches inside a specific element.
+const card = document.querySelector(".card");
+
+const buttons = card.querySelectorAll("button");
+________________________________________
+CSS selectors you can use
+All of these methods support standard CSS selectors.
+By class
+".tabLinks"
+Matches:
+<button class="tabLinks"></button>
+________________________________________
+By ID
+"#home"
+Matches:
+<div id="home"></div>
+________________________________________
+By tag
+"button"
+Matches all buttons.
+________________________________________
+Multiple classes
+".btn.primary"
+Matches:
+<button class="btn primary"></button>
+________________________________________
+Descendant
+".card button"
+Matches buttons inside .card.
+________________________________________
+Direct child
+".card > button"
+Matches only direct child buttons.
+________________________________________
+Attribute selector
+"[data-tab]"
+Matches any element with a data-tab attribute.
+Or:
+"[data-tab='home']"
+Matches:
+<button data-tab="home"></button>
+________________________________________
+Pseudo-classes
+"li:first-child"
+"input:checked"
+"button:not(.disabled)"
+These also work.
+________________________________________
+Methods that don't use CSS selectors
+These use names or IDs directly instead:
+document.getElementById("home")
+document.getElementsByClassName("tabLinks")
+document.getElementsByTagName("button")
+document.getElementsByName("email")
+Notice there's no # or .:
+document.getElementById("home");        // ✅
+document.querySelector("#home");        // ✅
+
+document.getElementsByClassName("btn"); // ✅
+document.querySelector(".btn");         // ✅
+The most commonly used ones
+Method	Accepts CSS selector?	Returns
+querySelector()	✅	First matching element
+querySelectorAll()	✅	NodeList of all matches
+matches()	✅	true / false
+closest()	✅	Closest matching ancestor (or itself)
+element.querySelector()	✅	First match within that element
+element.querySelectorAll()	✅	All matches within that element
+In modern JavaScript, you'll most often use querySelector(), querySelectorAll(), matches(), and closest(), especially when working with event delegation and dynamic content.
+
+There isn't a CSS selector method that directly says "give me the siblings." Instead, you first get the clicked element, then navigate the DOM using properties like parentElement, children, nextElementSibling, and previousElementSibling.
+Example HTML
+<div id="tabs">
+    <button class="tabLinks active">Home</button>
+    <button class="tabLinks">About</button>
+    <button class="tabLinks">Contact</button>
+</div>
+Option 1: Get all siblings
+tabContainer.addEventListener("click", (e) => {
+    if (!e.target.matches(".tabLinks")) return;
+
+    const siblings = [...e.target.parentElement.children]
+        .filter(el => el !== e.target);
+
+    console.log(siblings);
+});
+If you click About, siblings contains:
+Home button
+Contact button
+________________________________________
+Option 2: Remove a class from all siblings
+This is a very common pattern for tabs:
+tabContainer.addEventListener("click", (e) => {
+    if (!e.target.matches(".tabLinks")) return;
+
+    const siblings = e.target.parentElement.children;
+
+    [...siblings].forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    e.target.classList.add("active");
+});
+________________________________________
+Option 3: Get the next sibling
+const next = e.target.nextElementSibling;
+Example:
+<button>Home</button>
+<button>About</button>
+<button>Contact</button>
+Click Home:
+console.log(e.target.nextElementSibling.textContent);
+Output:
+About
+________________________________________
+Option 4: Get the previous sibling
+const prev = e.target.previousElementSibling;
+Click Contact:
+About
+________________________________________
+Option 5: Get all siblings using closest()
+This works even if the click happens on a nested element:
+<button class="tabLinks">
+    <span>Home</span>
+</button>
+tabContainer.addEventListener("click", (e) => {
+    const tab = e.target.closest(".tabLinks");
+    if (!tab) return;
+
+    [...tab.parentElement.children].forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    tab.classList.add("active");
+});
+Using closest() is more robust than checking e.target.matches(".tabLinks"), because it still finds the button even if the user clicks the <span> inside it.
+Summary
+To work with siblings, these DOM properties are the ones you'll use most:
+•	element.parentElement.children → all sibling elements (including the element itself)
+•	element.nextElementSibling → the next sibling
+•	element.previousElementSibling → the previous sibling
+•	element.closest(selector) → find the nearest matching ancestor before navigating to siblings
+There isn't a siblings() method in the standard DOM API (unlike jQuery), but parentElement.children combined with filtering is the standard JavaScript approach.

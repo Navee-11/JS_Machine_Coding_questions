@@ -42,6 +42,9 @@ h1 {
   margin-bottom: 8px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  /* To control over flow  */
+  /* overflow-wrap: break-word;
+  word-break: break-word; */
 }
 .todo-list li span {
   flex: 1;
