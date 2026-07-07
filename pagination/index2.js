@@ -24,6 +24,20 @@ document.addEventListener("DOMContentLoaded", () => {
     productsContainer.classList.add("products");
     const paginationContainer = document.createElement("div");
     paginationContainer.classList.add("pagination");
+
+    paginationContainer.addEventListener("click", (e) => {
+      if (e.target.matches(".previous__button")) {
+        selectPageHandler(page - 1);
+      }
+      if (e.target.matches(".next__button")) {
+        selectPageHandler(page + 1);
+      }
+      if (e.target.matches(".pagination__button")) {
+        let newPage = Number(e.target.innerText);
+        console.log(typeof newPage);
+        selectPageHandler(Number(e.target.innerText));
+      }
+    });
     if (products.length > 0) {
       products.slice(page * 10 - 10, page * 10).forEach((prod) => {
         const productElement = document.createElement("div");
@@ -33,36 +47,29 @@ document.addEventListener("DOMContentLoaded", () => {
         productsContainer.appendChild(productElement);
       });
       if (page > 1) {
-        const prevButton = createPaginationButton("◀️", () => {
-          selectPageHandler(page - 1);
-        });
+        const prevButton = createPaginationButton("◀️");
+        prevButton.classList.add("previous__button");
         paginationContainer.appendChild(prevButton);
       }
       for (let i = 0; i < products.length / 10; i++) {
-        const pagebutton = createPaginationButton(
-          i + 1,
-          () => {
-            selectPageHandler(i + 1);
-          },
-          page === i + 1,
-        );
+        const pagebutton = createPaginationButton(i + 1, page === i + 1);
+        pagebutton.classList.add("pagination__button");
         paginationContainer.appendChild(pagebutton);
       }
     }
     if (page < products.length / 10) {
-      const nextButton = createPaginationButton("▶️", () => {
-        selectPageHandler(page + 1);
-      });
+      const nextButton = createPaginationButton("▶️");
+      nextButton.classList.add("next__button");
       paginationContainer.appendChild(nextButton);
     }
     app.innerHTML = "";
     app.appendChild(productsContainer);
     app.appendChild(paginationContainer);
   };
-  const createPaginationButton = (text, clickHandler, isSelected = false) => {
+  //With Event Delegation
+  const createPaginationButton = (text, isSelected = false) => {
     const button = document.createElement("button");
     button.textContent = text;
-    button.addEventListener("click", clickHandler);
     if (isSelected) {
       button.classList.add("pagination__selected");
     }
